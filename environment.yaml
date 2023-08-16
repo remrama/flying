@@ -1,0 +1,10 @@
+name: flying
+
+dependencies:
+  - ipython
+  - numpy
+  - pandas
+  - scikit-learn
+  - pip
+  - pip:
+    - openai
