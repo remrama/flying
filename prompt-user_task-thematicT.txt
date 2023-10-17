@@ -1,0 +1,31 @@
+Here is a dream from my dream journal where I flew: "<INSERT_DREAM>"
+
+---
+
+Which of the following techniques did I use to fly in my dream?
+- *wings* (growing wings, using flapping motion with arms, moving/positioning arms/wings to generate lift, etc.)
+- *hovering/levitation* (floating, levitating, hovering close to the ground without visible body movements or support, etc.)
+- *running* (running or accelerating to initiate or maintain flight)
+- *swimming-like movements* (movements similar to swimming strokes for propulsion through the air, etc.)
+- *spinning/rotation* (spinning or rotating movements to generate lift or maintain flight, etc.)
+- *wind* (using air currents, being carried by the wind, glider-like movements, manipulating the wind to stay airborne, etc.)
+- *falling forward/launching from a high place* (falling forward, launching from a high place, passing through a window to start flying, etc.)
+- *focus/concentration* (mental effort, concentration, visualization to achieve and maintain flight, etc.)
+- *jetpacks/rockets/suits* (body technology using jetpacks, rockets, special suits to achieve flight, etc.)
+- *balloons* (using balloons or inflated objects to float or fly, etc.)
+- *breath-related flying* (holding or controlling breath to generate lift or maintain flight, etc.)
+- *jumping/bouncing* (jumping, bouncing, springing off surfaces to gain height or maintain flight, etc.)
+- *sorcery* (using sorcery, spells, ingesting potions/pills, etc.)
+- *flying objects* (using or holding objects to support flight, etc.)
+- *flying beings* (the help of a flying person, animal, creature, mythical creatures, etc.)
+- *flying vehicles* (using a flying vehicle, aircraft, flying car, spaceship, etc.)
+- *transformation* (self-transformation into a flying creature or object, etc.)
+- *climbing/stepping in the air* (climbing or stepping in the air to initiate flying, invisible ladders or stairs, etc.)
+- *superhero* (using superhero styles of flying to initiate or maintain flight)
+- *unspecified* (no indication of a technique)
+
+This is a very important assignment to me, please be careful in your response.
+
+Respond with a JSON where keys are each themes and values are a boolean indicating presence/absence of the theme.
+
+Respond only with your answer.

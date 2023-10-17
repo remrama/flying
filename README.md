@@ -3,34 +3,33 @@
 A study of flying dreams.
 
 
-## Fine-tuning an OpenAI model to preprocess dream reports
+## ChatGPT coding
 
 ```shell
-# Read in and export OpenAI API key.
-export OPENAI_API_KEY=$(head -n 1 .openai)
+# Is a post a dream?
+python gpt_request.py --dataset flying --task isdream       #> data-flying_task-isdream_responses.json
 
-# Convert the dataset of training examples to jsonl format.
-python csv2jsonl.py
+# Is a dream lucid?
+python gpt_request.py --dataset dreamviews --task islucid   #> data-dreamviews_task-islucid_responses.json
+python gpt_request.py --dataset flying --task islucid       #> data-flying_task-islucid_responses.json
+python gpt_request.py --dataset sddb --task islucid         #> data-sddb_task-islucid_responses.json
 
-# Let OpenAI run their quality control on the dataset.
-openai tools fine_tunes.prepare_data --file dreams.jsonl --quiet
+# Identify themes in a dream
+python gpt_request.py --dataset flying --task thematicT     #> data-flying_task-thematicT_responses.json
 
-# Create the fine-tuned model.
-openai api fine_tunes.create \
-    --training_file dreams.jsonl \
-    --suffix flying \
-    --model davinci \
-    --n_epochs 2
+# Annotate non-dream, lucid dream, and flying dream sections
+python gpt_request.py --dataset flying --task annotate      #> data-flying_task-annotate_responses.json
+```
 
-# Check on model with these commands
-#   openai api fine_tunes.list
-#   openai api fine_tunes.get --id FINE_TUNED_JOB_ID
-#   openai api fine_tunes.cancel --id FINE_TUNED_JOB_ID
-#   openai api models.delete -id FINE_TUNED_JOB_ID
+## Visualizations
 
-# # Download results file.
-# openai api fine_tunes.results --id FINE_TUNED_JOB
+```shell
+# Describe the sample size and demographics of the dataset
+python plot_descriptives.py         #> data-flying_sample-*.png
 
-# # Test it!
-# openai api completions.create -m FINE_TUNED_MODEL -p YOUR_PROMPT
+# Plot top technique themes for lucid and non-lucid dreams (separately)
+python plot_themes_lucidity.py      #> data-flying_themes-techniq_lucidity.png
+
+# Plot timecourses based on GPT supp/flying/lucid annotations (and a bar graph)
+python plot_timecourses.py          #> data-flying_task-annotate_*.png
 ```

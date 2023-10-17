@@ -1,0 +1,24 @@
+Here is a dream from my dream journal where I flew: "<INSERT_DREAM>"
+
+---
+
+Which of the following obstacles made it difficult for me to fly successfully in my dream?
+- *bodily/physical limitations* (physical body limitations, running out of energy, losing control, etc.)
+- *environmental constraints* (telephone wires, buildings, strong wind, rain, etc.)
+- *fear/anxiety* (fear, anxiety, etc.)
+- *lack of belief* (lack of belief in their ability to initiate or maintain flight, etc.)
+- *lack of focus* (lack of focus or concentration, loss of lucidity, too much distraction, too much excitement, etc.)
+- *waking up* (the dream ends)
+- *technical failure* (technical problem or difficulties with the device, vehicle, or mechanism that helped the dreamer fly, etc.)
+- *other beings* (another being or creature is threatening, challenging, or limiting the flight, etc.)
+- *gravity/crash/falling* (being brought down by gravity, falling, crashing towards the ground, etc.)
+- *restricted speed/altitude* (unable to gain speed or height, unable to get back down at will, etc.)
+- *inability to initiate flight* (tries to fly but is never able to)
+- *no obstacles* (there were no difficulties in flying)
+
+
+This is a very important assignment to me, please be careful in your response.
+
+Respond with a JSON where keys are each themes and values are a boolean indicating presence/absence of the theme.
+
+Respond only with your answer.

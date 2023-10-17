@@ -1,0 +1,24 @@
+This is a post from an online dream journal: "<INSERT_DREAM>"
+
+---
+
+Annotate the post for a named entity recognition task for identifying critical elements of dream experience. Use only the following entity labels:
+- flying (text that describes an experience of the self flying while dreaming)
+- lucidity (text that describes an experience of the self dreaming while being aware of dreaming)
+- supplement (text that describes a waking experience)
+
+
+This is a very important assignment to me, please be careful in your response.
+
+Respond with the following JSON format:
+{
+    "text": <full_post>,
+    "entities": [
+        {
+            "value": <excerpt>,
+            "label": <label>
+        }
+    ]
+}
+
+Respond only with your answer.

@@ -1,0 +1,21 @@
+Here is a dream from my dream journal where I flew: "<INSERT_DREAM>"
+
+---
+
+Which of the following techniques motivated me to fly in my dream?
+- *in response to fear* (escape/run away from threat or negative situations, such as someone chasing them, etc.)
+- *enjoyment* (flying for fun, thrills, to feel free, to experience the joy of flight, etc.)
+- *learning/practice* (in order to learn how to fly, to practice new techniques to fly, to teach other dream characters how to fly, etc.)
+- *mean of transportation* (the main reason why the dreamer flies is to get to a specific place or destination, to get around obstacles in their path, to travel more efficiently, to transport other things without gravity, etc.)
+- *involuntary flight* (the flight is not originally initiated by the dreamer, the dreamer is being forced to fly, flying against their will, etc.)
+- *elicit a reaction in other people* (to impress other characters, to surprise or shock other dream characters, etc.)
+- *helping/saving others* (the dreamer is flying to help or save other dream characters, etc.)
+- *reality check* (doubting the reality of the dream, they are flying as a mean to verify whether or not they are dreaming, etc.)
+- *unspecified* (no indication of a technique)
+
+
+This is a very important assignment to me, please be careful in your response.
+
+Respond with a JSON where keys are each themes and values are a boolean indicating presence/absence of the theme.
+
+Respond only with your answer.

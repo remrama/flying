@@ -1,0 +1,9 @@
+Here is a post from a social media site about dreams: "<INSERT_DREAM>"
+
+---
+
+Sometimes posts on this site are describing a single dream experience, others describe experiences that occur across dreams more generally. Which one is this?
+
+Respond only with your answer. Say True if the post describes a single dream experience or False if the post is a general dream description.
+
+This is a very important assignment to me, please be careful in your response.
