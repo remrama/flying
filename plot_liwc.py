@@ -120,7 +120,8 @@ plt.close()
 
 category = "insight"
 fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
-sns.barplot(flying_and_dv.query(f"category=='{category}'"),
+plot_df = flying_and_dv.query(f"category=='{category}'")
+sns.barplot(data=plot_df,
     x="dataset",
     hue="lucidity",
     y="frequency",

@@ -28,6 +28,11 @@ counts = df.groupby("source_id")["report_type"].value_counts(dropna=False).unsta
 counts = counts.reindex(counts.sum(axis=1).sort_values(ascending=False).index)
 counts = counts[order]
 
+counts2 = counts.rename_axis(columns=None)
+counts2.loc["total"] = counts2.sum()
+export_path = utils.deriv_dir / "data-flying_sample-type.csv"
+counts2.to_csv(export_path, index=True)
+
 fig, ax = plt.subplots(figsize=(3, 3.5), constrained_layout=True)
 bar_kwargs = dict(width=0.8, linewidth=1, edgecolor="black")
 palette = utils.colors.copy()
@@ -82,16 +87,17 @@ plt.close()
 # Visualize lucid dream frequency
 ################################################################################
 
-responses = {}
-completions = utils.load_json(utils.deriv_dir / f"data-flying_task-islucid_responses-OLD.json")
-for dream_id, completion in completions.items():
-    responses[dream_id] = [choice["message"]["content"] for choice in completion["choices"]]
-ser = (
-    pd.Series(responses).explode()
-    .rename("lucidity").rename_axis("dream_ID")
-    .map({"True": "lucid", "False": "non-lucid"})
-)
-ser.index = ser.index.map(lambda x: f"fly-{x}")
+
+# responses = {}
+# completions = utils.load_json(utils.deriv_dir / f"data-flying_task-islucid_responses.json")
+# for dream_id, completion in completions.items():
+#     responses[dream_id] = [choice["message"]["content"] for choice in completion["choices"]]
+# ser = (
+#     pd.Series(responses).explode()
+#     .rename("lucidity").rename_axis("dream_ID")
+#     .map({"True": "lucid", "False": "non-lucid"})
+# )
+ser = utils.load_gpt_lucidity_codes(dataset="flying")
 drms = df.join(ser, how="inner")
 
 
@@ -99,6 +105,11 @@ order = ["non-lucid", "lucid"]
 counts = drms.groupby("source_id")["lucidity"].value_counts(dropna=False).unstack(fill_value=0)
 counts = counts.reindex(counts.sum(axis=1).sort_values(ascending=False).index)
 counts = counts[order]
+
+counts2 = counts.rename_axis(columns=None)
+counts2.loc["total"] = counts2.sum()
+export_path = utils.deriv_dir / "data-flying_sample-lucidity.csv"
+counts2.to_csv(export_path, index=True)
 
 fig, ax = plt.subplots(figsize=(3, 3.5), constrained_layout=True)
 bar_kwargs = dict(width=0.8, linewidth=1, edgecolor="black")
@@ -162,6 +173,11 @@ counts = dream_subjects.groupby("source_id")["sex"].value_counts(dropna=False).u
 counts = counts.reindex(counts.sum(axis=1).sort_values(ascending=False).index)
 counts = counts[order]
 
+counts2 = counts.rename_axis(columns=None)
+counts2.loc["total"] = counts2.sum()
+export_path = utils.deriv_dir / "data-flying_sample-sex.csv"
+counts2.to_csv(export_path, index=True)
+
 fig, ax = plt.subplots(figsize=(3, 3.5), constrained_layout=True)
 bar_kwargs = dict(width=0.8, linewidth=0, edgecolor="black")
 palette = utils.colors.copy()
@@ -215,6 +231,12 @@ plt.close()
 ################################################################################
 
 counts = dreams.groupby("source_id")["subject_id"].agg(["nunique", "count"])
+
+counts2 = counts.rename_axis(columns=None)
+counts2.loc["total"] = counts2.sum()
+export_path = utils.deriv_dir / "data-flying_sample-authors.csv"
+counts2.to_csv(export_path, index=True)
+
 markers = {
     "DreamBank": "o",
     "LD4all": "s",
