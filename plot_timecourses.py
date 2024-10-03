@@ -1,16 +1,12 @@
 """Plot spans of lucidity and flying."""
 
-import argparse
 import json
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pingouin as pg
-from scipy.interpolate import interp1d
 from scipy import stats
-import seaborn as sns
 
 import utils
 
@@ -54,7 +50,9 @@ for dream_id, completion in completions.items():
             unique_labels = set(e["label"] for e in entities)
             assert all(l in expected_labels for l in unique_labels)
             n_total_characters = len(dream_report)
-            masks = {l: np.zeros(n_total_characters, dtype=int) for l in expected_labels}
+            masks = {
+                l: np.zeros(n_total_characters, dtype=int) for l in expected_labels
+            }
             for e in entities:
                 entity_text = e["value"]
                 entity_label = e["label"]
@@ -80,7 +78,6 @@ supplement = np.stack([v["supplement"] for v in results.values()])
 lucidity = np.stack([v["lucidity"] for v in results.values()])
 
 
-
 ################################################################################
 # Visualize the timecourse of supplements and flying labels.
 ################################################################################
@@ -98,7 +95,7 @@ for label, data in zip(["supplement", "flying"], [supplement, flying]):
     sem = stats.sem(data, axis=0)
     color = palette[label]
     z = zorder[label]
-    ax.fill_between(x, mean-sem, mean+sem, color=color, zorder=z, **fbetween_kwargs)
+    ax.fill_between(x, mean - sem, mean + sem, color=color, zorder=z, **fbetween_kwargs)
     ax.plot(x, mean, color=color, label=label, zorder=z, **plot_kwargs)
 
 ax.set_ylabel("Percentage of dreams")
@@ -107,9 +104,13 @@ ax.set_xlabel(
     r"Start $\leftarrow$                           $\rightarrow$ End"
 )
 ax.set_xlim(0, 100)
-ax.xaxis.set(major_locator=plt.MultipleLocator(25), minor_locator=plt.MultipleLocator(5))
+ax.xaxis.set(
+    major_locator=plt.MultipleLocator(25), minor_locator=plt.MultipleLocator(5)
+)
 ax.set_ylim(0, 0.3)
-ax.yaxis.set(major_locator=plt.MultipleLocator(0.1), minor_locator=plt.MultipleLocator(0.02))
+ax.yaxis.set(
+    major_locator=plt.MultipleLocator(0.1), minor_locator=plt.MultipleLocator(0.02)
+)
 ax.yaxis.set_major_formatter(plt.matplotlib.ticker.PercentFormatter(1.0, decimals=0))
 
 legend = ax.legend(
@@ -131,7 +132,6 @@ plt.savefig(export_path)
 plt.close()
 
 
-
 ################################################################################
 # Visualize the timecourse of supplements and lucidity labels.
 ################################################################################
@@ -150,7 +150,7 @@ for label, data in zip(["lucidity", "flying"], [lucidity[idx], flying[idx]]):
     sem = stats.sem(data, axis=0)
     color = palette[label]
     z = zorder[label]
-    ax.fill_between(x, mean-sem, mean+sem, color=color, zorder=z, **fbetween_kwargs)
+    ax.fill_between(x, mean - sem, mean + sem, color=color, zorder=z, **fbetween_kwargs)
     ax.plot(x, mean, color=color, label=label, zorder=z, **plot_kwargs)
 
 ax.set_ylabel("Percentage of dreams")
@@ -159,10 +159,14 @@ ax.set_xlabel(
     r"Start $\leftarrow$                           $\rightarrow$ End"
 )
 ax.set_xlim(0, 100)
-ax.xaxis.set(major_locator=plt.MultipleLocator(25), minor_locator=plt.MultipleLocator(5))
+ax.xaxis.set(
+    major_locator=plt.MultipleLocator(25), minor_locator=plt.MultipleLocator(5)
+)
 
 ax.set_ylim(0, 0.3)
-ax.yaxis.set(major_locator=plt.MultipleLocator(0.1), minor_locator=plt.MultipleLocator(0.02))
+ax.yaxis.set(
+    major_locator=plt.MultipleLocator(0.1), minor_locator=plt.MultipleLocator(0.02)
+)
 ax.yaxis.set_major_formatter(plt.matplotlib.ticker.PercentFormatter(1.0, decimals=0))
 
 legend = ax.legend(
@@ -182,7 +186,6 @@ legend._legend_box.align = "left"
 export_path = utils.deriv_dir / f"data-{dataset}_task-{task}_lucidity.png"
 plt.savefig(export_path)
 plt.close()
-
 
 
 ################################################################################
@@ -209,19 +212,31 @@ ax.set_yticklabels([x.replace(" ", "\n") for x in order])
 ax.spines[["top", "right"]].set_visible(False)
 ax.set_xlabel("Temporal onset within the dream")
 ax.set_xlim(25, 50)
-ax.xaxis.set(major_locator=plt.MultipleLocator(25), minor_locator=plt.MultipleLocator(5))
+ax.xaxis.set(
+    major_locator=plt.MultipleLocator(25), minor_locator=plt.MultipleLocator(5)
+)
 ax.set_ylim(-0.7, 1.7)
 # ax.yaxis.set(major_locator=plt.MultipleLocator(0.1), minor_locator=plt.MultipleLocator(0.02))
 
-stats = pg.wilcoxon(onsets["lucidity"], onsets["flying"], correction=True, method="approx")
+stats = pg.wilcoxon(
+    onsets["lucidity"], onsets["flying"], correction=True, method="approx"
+)
 p = stats.at["Wilcoxon", "p-val"]
 stars = "*" * sum(p < cutoff for cutoff in [0.05, 0.01, 0.001])
 stars_x = np.max(means + sems)
 stars_x += 0.2
 stars_color = "black" if stars_x else "gainsboro"
-text_kwargs = dict(color=stars_color, fontsize=16, ha="center", va="center", rotation=270)
+text_kwargs = dict(
+    color=stars_color, fontsize=16, ha="center", va="center", rotation=270
+)
 ax.text(0.95, 0.5, stars, transform=ax.transAxes, **text_kwargs)
-lines = ax.plot([0.95, 0.95], [0, 1], color=stars_color, linewidth=2, transform=ax.get_yaxis_transform())
+lines = ax.plot(
+    [0.95, 0.95],
+    [0, 1],
+    color=stars_color,
+    linewidth=2,
+    transform=ax.get_yaxis_transform(),
+)
 for l in lines:
     l.set_dash_capstyle("round")
 # l = mlines.Line2D([stars_x, stars_x], [0, 1], color=stars_color)
@@ -231,7 +246,6 @@ for l in lines:
 export_path = utils.deriv_dir / f"data-{dataset}_task-{task}_bars.png"
 plt.savefig(export_path)
 plt.close()
-
 
 
 ################################################################################
@@ -259,12 +273,31 @@ for event in ["flying", "lucidity"]:
     ax.set_xlabel("Temporal onset within the dream")
     ax.set_xlim(0, 100)
     if event == "flying":
-        ax.text(0, 1, f"{event}-first dreams", color=c, ha="left", va="bottom", fontsize=10, transform=ax.get_yaxis_transform())
+        ax.text(
+            0,
+            1,
+            f"{event}-first dreams",
+            color=c,
+            ha="left",
+            va="bottom",
+            fontsize=10,
+            transform=ax.get_yaxis_transform(),
+        )
     elif event == "lucidity":
-        ax.text(1, 1, f"{event}-first dreams", color=c, ha="right", va="bottom", fontsize=10, transform=ax.get_yaxis_transform())
-    ax.xaxis.set(major_locator=plt.MultipleLocator(25), minor_locator=plt.MultipleLocator(5))
+        ax.text(
+            1,
+            1,
+            f"{event}-first dreams",
+            color=c,
+            ha="right",
+            va="bottom",
+            fontsize=10,
+            transform=ax.get_yaxis_transform(),
+        )
+    ax.xaxis.set(
+        major_locator=plt.MultipleLocator(25), minor_locator=plt.MultipleLocator(5)
+    )
     ax.set_ylim(-0.7, 1.7)
     export_path = utils.deriv_dir / f"data-{dataset}_task-{task}_bars_{event}.png"
     plt.savefig(export_path)
     plt.close()
-

@@ -1,18 +1,14 @@
 """Run LIWC from command line."""
+
 import argparse
 import os
 import subprocess
-import sys
 from time import sleep
 
 import utils
 
 
-available_datasets = [
-    "dreamviews",
-    "flying",
-    "sddb"
-]
+available_datasets = ["dreamviews", "flying", "sddb"]
 
 dictionaries = {
     "22": "LIWC22",
@@ -34,8 +30,15 @@ dictionaries = {
 }
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--dataset", required=True, type=str, choices=available_datasets)
-parser.add_argument("-o", "--overwrite", action="store_true", help="Overwrite output file if it already exists.")
+parser.add_argument(
+    "-d", "--dataset", required=True, type=str, choices=available_datasets
+)
+parser.add_argument(
+    "-o",
+    "--overwrite",
+    action="store_true",
+    help="Overwrite output file if it already exists.",
+)
 args = parser.parse_args()
 
 dataset = args.dataset
@@ -61,7 +64,7 @@ exclude_categories = ",".join(
         "Comma",
         "QMark",
         "Exclam",
-        "Apostro", 
+        "Apostro",
         "OtherP",
     ]
 )
@@ -84,7 +87,9 @@ row_id_indices = 1
 
 for dictx_id, dictx_path in dictionaries.items():
     for nof in n_segments:
-        export_path = utils.deriv_dir / f"data-{dataset}_liwc-{dictx_id}_nsegs-{nof}.csv"
+        export_path = (
+            utils.deriv_dir / f"data-{dataset}_liwc-{dictx_id}_nsegs-{nof}.csv"
+        )
         if not export_path.exists() or overwrite:
             command = (
                 "LIWC-22-cli --mode wc"

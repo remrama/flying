@@ -1,16 +1,10 @@
 """Visualize the dataset with descriptive plots."""
-import argparse
-import json
-from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 import numpy as np
-import pandas as pd
-import seaborn as sns
+from matplotlib.lines import Line2D
 
 import utils
-
 
 utils.load_matplotlib_settings()
 

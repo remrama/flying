@@ -1,15 +1,8 @@
 """Explore LIWC results."""
-import argparse
-import json
-from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-import numpy as np
 import pandas as pd
-import pingouin as pg
 import seaborn as sns
-from scipy.stats import sem
 
 import utils
 
@@ -35,6 +28,7 @@ sddb = utils.load_sddb()
 
 # Load LIWC results.
 
+
 # export_name = f"data-{dataset}_liwc.png"
 # export_path = deriv_dir / export_name
 def load_liwc_file(dataset, dic, nsegs=n_segments):
@@ -47,13 +41,30 @@ def load_liwc_file(dataset, dic, nsegs=n_segments):
         # .drop(columns="dream")
     )
 
+
 flying_liwc = pd.concat([load_liwc_file("flying", d) for d in liwc_dicts], axis=1)
-dreamviews_liwc = pd.concat([load_liwc_file("dreamviews", d) for d in liwc_dicts], axis=1)
+dreamviews_liwc = pd.concat(
+    [load_liwc_file("dreamviews", d) for d in liwc_dicts], axis=1
+)
 sddb_liwc = pd.concat([load_liwc_file("sddb", d) for d in liwc_dicts], axis=1)
 
 vestibular_cats = [
-    "ascend", "balance", "descend", "dizzy", "falling", "float", "fly", "gyrate",
-    "hover", "soar", "spin", "spinning", "swirl", "vertigo", "weightless", "whirl",
+    "ascend",
+    "balance",
+    "descend",
+    "dizzy",
+    "falling",
+    "float",
+    "fly",
+    "gyrate",
+    "hover",
+    "soar",
+    "spin",
+    "spinning",
+    "swirl",
+    "vertigo",
+    "weightless",
+    "whirl",
 ]
 flying_liwc["vestib"] = flying_liwc[vestibular_cats].sum(axis=1)
 dreamviews_liwc["vestib"] = dreamviews_liwc[vestibular_cats].sum(axis=1)
@@ -68,9 +79,15 @@ if n_segments == 1:
     dreamviews_liwc = dreamviews_liwc.droplevel("Segment")
     sddb_liwc = sddb_liwc.droplevel("Segment")
 
-fly_melt = flying_liwc.melt(id_vars="lucidity", var_name="category", value_name="frequency", ignore_index=False)
-dv_melt = dreamviews_liwc.melt(id_vars="lucidity", var_name="category", value_name="frequency", ignore_index=False)
-sddb_melt = sddb_liwc.melt(var_name="category", value_name="frequency", ignore_index=False)
+fly_melt = flying_liwc.melt(
+    id_vars="lucidity", var_name="category", value_name="frequency", ignore_index=False
+)
+dv_melt = dreamviews_liwc.melt(
+    id_vars="lucidity", var_name="category", value_name="frequency", ignore_index=False
+)
+sddb_melt = sddb_liwc.melt(
+    var_name="category", value_name="frequency", ignore_index=False
+)
 
 fly_melt["dataset"] = "Flying"
 dv_melt["dataset"] = "DreamViews"
@@ -101,7 +118,8 @@ dataset_order_sddb = ["Flying", "SDDb"]
 
 category = "Agency"
 fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
-sns.barplot(flying_and_dv.query(f"category=='{category}'"),
+sns.barplot(
+    flying_and_dv.query(f"category=='{category}'"),
     x="dataset",
     hue="lucidity",
     y="frequency",
@@ -121,7 +139,8 @@ plt.close()
 category = "insight"
 fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
 plot_df = flying_and_dv.query(f"category=='{category}'")
-sns.barplot(data=plot_df,
+sns.barplot(
+    data=plot_df,
     x="dataset",
     hue="lucidity",
     y="frequency",
@@ -140,7 +159,8 @@ plt.close()
 
 category = "emo_pos"
 fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
-sns.barplot(flying_and_dv.query(f"category=='{category}'"),
+sns.barplot(
+    flying_and_dv.query(f"category=='{category}'"),
     x="dataset",
     hue="lucidity",
     y="frequency",
@@ -158,7 +178,8 @@ plt.close()
 
 category = "emo_pos"
 fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
-sns.barplot(flying_and_dv.query(f"category=='{category}'"),
+sns.barplot(
+    flying_and_dv.query(f"category=='{category}'"),
     x="dataset",
     hue="lucidity",
     y="frequency",
@@ -198,7 +219,6 @@ plt.close()
 #     ax.set_xticklabels(["Flying\nnon-lucid", "Flying\nlucid"])
 #     ax.set_ylabel(f"{category} word frequency")
 #     ax.spines[["top", "right"]].set_visible(False)
-
 
 
 # def plot_bars(category):

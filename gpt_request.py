@@ -1,22 +1,16 @@
 """Can ChatGPT identify lucidity?"""
+
 import argparse
 import os
-from pathlib import Path
 from time import sleep
 
 import openai
-import pandas as pd
 from tqdm import tqdm
-import unidecode
 
 import utils
 
 
-available_datasets = [
-    "dreamviews",
-    "flying",
-    "sddb"
-]
+available_datasets = ["dreamviews", "flying", "sddb"]
 
 available_tasks = [
     "isdream",
@@ -28,9 +22,16 @@ available_tasks = [
 ]
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--dataset", required=True, type=str, choices=available_datasets)
+parser.add_argument(
+    "-d", "--dataset", required=True, type=str, choices=available_datasets
+)
 parser.add_argument("-t", "--task", required=True, type=str, choices=available_tasks)
-parser.add_argument("-o", "--overwrite", action="store_true", help="Overwrite output file if it already exists.")
+parser.add_argument(
+    "-o",
+    "--overwrite",
+    action="store_true",
+    help="Overwrite output file if it already exists.",
+)
 parser.add_argument("--test", action="store_true", help="Just run on 10 samples.")
 args = parser.parse_args()
 
@@ -82,7 +83,6 @@ model_kwargs = {
 }
 
 
-
 if export_path.exists() and not overwrite:
     # If not overwriting, load in existing results.
     responses = utils.load_json(export_path)
@@ -106,7 +106,7 @@ for dream_id, dream_report in tqdm(ser.items(), total=ser.size, desc="Dreams"):
             try:
                 responses[dream_id] = openai.ChatCompletion.create(**model_kwargs)
                 move_on = True
-            except openai.error.RateLimitError as e:
+            except openai.error.RateLimitError:
                 print("Rate Limit Error, backing off and trying again...")
                 sleep(1.0)
         # Write cumulative results to file.

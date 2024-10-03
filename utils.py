@@ -16,50 +16,55 @@ deriv_dir = Path(DERIV_DIR).expanduser()
 colors = {
     "dream": "#1E71B5",
     "comment": "gainsboro",
-
     "lucidity": "orange",
     "flying": "#1E71B5",
     "supplement": "gainsboro",
-
     "lucid": "orange",
     "non-lucid": "#6CADD5",
-
     "female": "rebeccapurple",
     "male": "mediumpurple",
     "they": "blueviolet",
     "unspecified": "gainsboro",
 }
 
+
 def load_gpt_lucidity_codes(dataset):
     assert dataset in ["dreamviews", "flying", "sddb"]
     responses = {}
     completions = load_json(deriv_dir / f"data-{dataset}_task-islucid_responses.json")
     for dream_id, completion in completions.items():
-        responses[dream_id] = [choice["message"]["content"] for choice in completion["choices"]]
+        responses[dream_id] = [
+            choice["message"]["content"] for choice in completion["choices"]
+        ]
     ser = (
-        pd.Series(responses).explode()
-        .rename("lucidity").rename_axis("dream_id")
+        pd.Series(responses)
+        .explode()
+        .rename("lucidity")
+        .rename_axis("dream_id")
         .map({"True": "lucid", "False": "non-lucid"})
     )
     return ser
+
 
 def remove_short_and_long_dreams(df):
     lengths = df["dream_text"].str.len()
     return df[lengths.ge(50) & lengths.le(5000)]
 
+
 def clean_dream_column(ser):
-    return (ser
-        .apply(unidecode.unidecode, errors="ignore", replace_str=None)
+    return (
+        ser.apply(unidecode.unidecode, errors="ignore", replace_str=None)
         .str.replace('"', "'")
         .str.strip()
     )
+
 
 def load_dreamviews():
     import_path = source_dir / "dreamviews.tsv"
     df = pd.read_table(import_path)
     df = df[df["lucidity"].isin(["lucid", "nonlucid"])]
-    df = (df
-        .rename(columns={"post_id": "dream_id", "post_clean": "dream_text"})
+    df = (
+        df.rename(columns={"post_id": "dream_id", "post_clean": "dream_text"})
         .set_index("dream_id")
         .replace({"lucidity": {"nonlucid": "non-lucid"}})
         .dropna(subset="dream_text")
@@ -68,13 +73,14 @@ def load_dreamviews():
     df.loc[:, "dream_text"] = clean_dream_column(df["dream_text"])
     return remove_short_and_long_dreams(df)
 
+
 def load_sddb():
     import_path = source_dir / "SDDb.csv"
     df = (
         pd.read_csv(
             import_path,
             usecols=["answer_text", "dream_entry_title", "respondent", "survey"],
-            low_memory=False
+            low_memory=False,
         )
         .rename(columns={"answer_text": "dream_text"})
         .dropna(subset="dream_text")
@@ -83,11 +89,12 @@ def load_sddb():
     df.loc[:, "dream_text"] = clean_dream_column(df["dream_text"])
     return remove_short_and_long_dreams(df)
 
+
 def load_sourcedata(
     dreams_only,
     name="Flying Dreams Database.xlsx",
     index_col="dream_ID",
-    usecols = [
+    usecols=[
         "dream_ID",
         "source",
         "participant_ID",
@@ -99,14 +106,15 @@ def load_sourcedata(
         "dream",
         "GPT_ID500",
     ],
-    **kwargs
-    ):
+    **kwargs,
+):
     filepath = source_dir / name
     df = (
-        pd.read_excel(filepath, index_col=index_col, usecols=usecols, **kwargs)
-        [usecols[1:]]
-        .rename(columns=
-            {
+        pd.read_excel(filepath, index_col=index_col, usecols=usecols, **kwargs)[
+            usecols[1:]
+        ]
+        .rename(
+            columns={
                 "thread_keywords": "title",
                 "dream_ID": "dream_id",
                 "source": "source_id",
@@ -171,8 +179,8 @@ def load_sourcedata(
                     "The Lucidity Institute, Stephen Laberge": "LucidityInstitute",
                     "Tore Email": "Tore",
                     "TW_combined_final": "TW",
-                    "Twitter : @CovidDreams 30mar2020_11jul2022 (33834) for Tobi v2": "Twitter"
-                }
+                    "Twitter : @CovidDreams 30mar2020_11jul2022 (33834) for Tobi v2": "Twitter",
+                },
             }
         )
         .replace(
@@ -200,25 +208,30 @@ def load_sourcedata(
     df.loc[:, "dream_text"] = clean_dream_column(df["dream_text"])
     return remove_short_and_long_dreams(df)
 
+
 def load_config() -> dict:
     """Load YAML configuration file as a dictionary."""
     with open("./config.yaml", "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
+
 
 def load_json(filepath: str) -> dict:
     """Load JSON file as a dictionary."""
     with open(filepath, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def save_json(obj: dict, filepath: str, mode: str="wt", **kwargs):
+
+def save_json(obj: dict, filepath: str, mode: str = "wt", **kwargs):
     kwargs = {"indent": 4, "sort_keys": False, "ensure_ascii": True} | kwargs
     with open(filepath, mode, encoding="utf-8") as f:
         json.dump(obj, f, **kwargs)
+
 
 def load_txt(filepath: str) -> str:
     """Load a raw text file as a string."""
     with open(filepath, "r", encoding="utf-8") as f:
         return f.read()
+
 
 def load_matplotlib_settings(interactive=False):
     plt.rcParams["interactive"] = interactive
