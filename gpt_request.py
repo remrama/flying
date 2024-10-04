@@ -52,23 +52,24 @@ elif dataset == "dreamviews":
 elif dataset == "sddb":
     df = utils.load_sddb()
 
+# For testing, just use a small sample of the data.
 if testing:
     df = df.sample(n=100, random_seed=32)
 
 assert df.index.name == "dream_id"
 assert df.index.is_unique
 
+# Get the dream text from the DataFrame.
 ser = df["dream_text"]
 
-
+# Load the ChatGPT prompt text.
 system_prompt = utils.load_txt(f"./prompt-system_task-{task}.txt")
 user_prompt = utils.load_txt(f"./prompt-user_task-{task}.txt")
 
+# Set the export path for the OpenAI responses.
 export_path = utils.deriv_dir / f"data-{dataset}_task-{task}_responses.json"
 
-
-# Set OpenAI/ChatGPT model parameters from configuration file.
-# model_kwargs = config["openai"]["model_kwargs"]
+# Set OpenAI/ChatGPT model parameters.
 model_kwargs = {
     "model": "gpt-4",
     "temperature": 0,  # Lower means more deterministic results
@@ -79,20 +80,20 @@ model_kwargs = {
     "max_tokens": None,  # The maximum number of tokens to generate in the chat completion
     "presence_penalty": 0,  # Penalizes tokens for occurring (or being absent if negative)
     "frequency_penalty": 0,
-    # "logit_bias": None
 }
 
-
+# Load existing responses if they exist.
 if export_path.exists() and not overwrite:
-    # If not overwriting, load in existing results.
     responses = utils.load_json(export_path)
 else:
     # Initialize an empty dictionary to hold OpenAI responses/completions/results.
     responses = {}
 
+# Initialize the ChatGPT messages.
 system_message = dict(role="system", content=system_prompt)
 user_message = dict(role="user")
 
+# Iterate over the dream reports and ask ChatGPT to identify lucidity.
 for dream_id, dream_report in tqdm(ser.items(), total=ser.size, desc="Dreams"):
     if dream_id not in responses:
         # Add this dream report to the ChatGPT prompt.
@@ -100,7 +101,7 @@ for dream_id, dream_report in tqdm(ser.items(), total=ser.size, desc="Dreams"):
         # Update ChatGPT model parameters with the updated user prompt.
         user_message.update(content=user_content)
         model_kwargs.update(messages=[system_message, user_message])
-        # Ask ChatGPT to produce the Stable Diffusion prompt.
+        # Request a response from OpenAI/ChatGPT.
         move_on = False
         while not move_on:
             try:

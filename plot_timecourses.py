@@ -11,12 +11,14 @@ from scipy import stats
 import utils
 
 
+# Load custom matplotlib settings.
 utils.load_matplotlib_settings(interactive=True)
 
-
+# Choose the dataset and task.
 dataset = "flying"
 task = "annotate"
 
+# Define the import/export paths.
 import_name = f"data-{dataset}_task-{task}_responses.json"
 export_name = f"data-{dataset}_lucidVsFlying.png"
 import_path = utils.deriv_dir / import_name
@@ -25,13 +27,16 @@ export_path = utils.deriv_dir / export_name
 # Load the responses/completions from ChatGPT.
 completions = utils.load_json(import_path)
 
+# Set expected labels and normalization parameters.
 expected_labels = ["flying", "lucidity", "supplement"]
-
 norm_length = 100
 norm_index = np.linspace(0, 1, num=norm_length)
 
+# Initialize the results dictionary.
 badcounts = 0
 results = {}
+
+# Iterate over the completions and extract the annotations.
 for dream_id, completion in completions.items():
     try:
         choices = completion["choices"]
@@ -45,20 +50,20 @@ for dream_id, completion in completions.items():
         assert all(k in ["text", "entities"] for k in ann)
         dream_report = ann["text"]
         entities = ann["entities"]
-        assert type(entities) == list
+        assert isinstance(entities, list)
         if len(entities) > 0:
             unique_labels = set(e["label"] for e in entities)
-            assert all(l in expected_labels for l in unique_labels)
+            assert all(label in expected_labels for label in unique_labels)
             n_total_characters = len(dream_report)
             masks = {
-                l: np.zeros(n_total_characters, dtype=int) for l in expected_labels
+                label: np.zeros(n_total_characters, dtype=int) for label in expected_labels
             }
             for e in entities:
                 entity_text = e["value"]
                 entity_label = e["label"]
                 try:
                     start = dream_report.index(entity_text)
-                except:
+                except ValueError:
                     print("wrong value")
                     continue
                 end = start + len(entity_text)
@@ -71,8 +76,9 @@ for dream_id, completion in completions.items():
     except:
         badcounts += 1
 
-print(f"SOME ERRORS LOADING, THIS MANY: {badcounts}")
+print(f"THIS MANY LOADING ERRORS: {badcounts}")
 
+# Convert to a dataframe with themes as columns and cells as 1 or 0.
 flying = np.stack([v["flying"] for v in results.values()])
 supplement = np.stack([v["supplement"] for v in results.values()])
 lucidity = np.stack([v["lucidity"] for v in results.values()])
@@ -82,14 +88,15 @@ lucidity = np.stack([v["lucidity"] for v in results.values()])
 # Visualize the timecourse of supplements and flying labels.
 ################################################################################
 
-fig, ax = plt.subplots(figsize=(3, 2), constrained_layout=True)
-
+# Define plotting parameters.
 plot_kwargs = dict(linestyle="solid", linewidth=1, alpha=1)
 fbetween_kwargs = dict(linewidth=0, alpha=0.3)
 palette = utils.colors.copy()
 zorder = dict(flying=3, lucidity=2, supplement=1)
 x = np.arange(norm_length)
 
+# Create the plot.
+fig, ax = plt.subplots(figsize=(3, 2), constrained_layout=True)
 for label, data in zip(["supplement", "flying"], [supplement, flying]):
     mean = data.mean(axis=0)
     sem = stats.sem(data, axis=0)
@@ -98,6 +105,7 @@ for label, data in zip(["supplement", "flying"], [supplement, flying]):
     ax.fill_between(x, mean - sem, mean + sem, color=color, zorder=z, **fbetween_kwargs)
     ax.plot(x, mean, color=color, label=label, zorder=z, **plot_kwargs)
 
+# Set the plot labels and limits.
 ax.set_ylabel("Percentage of dreams")
 ax.set_xlabel(
     "Progression of the dream\n"
@@ -113,6 +121,7 @@ ax.yaxis.set(
 )
 ax.yaxis.set_major_formatter(plt.matplotlib.ticker.PercentFormatter(1.0, decimals=0))
 
+# Add the legend.
 legend = ax.legend(
     loc="lower left",
     title="Event",
@@ -123,10 +132,10 @@ legend = ax.legend(
     labelspacing=0.1,  # vertical space between the legend entries
     borderaxespad=0,
 )
-
 legend._legend_box.align = "left"
 # legend._legend_box.sep = 5 # brings title up farther on top of handles/labels
 
+# Save the plot.
 export_path = utils.deriv_dir / f"data-{dataset}_task-{task}_supp.png"
 plt.savefig(export_path)
 plt.close()

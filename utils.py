@@ -1,3 +1,5 @@
+"""Utility functions."""
+
 import json
 from pathlib import Path
 
@@ -28,7 +30,21 @@ colors = {
 }
 
 
-def load_gpt_lucidity_codes(dataset):
+def load_gpt_lucidity_codes(dataset: str) -> pd.Series:
+    """
+    Load GPT-generated lucidity codes for a given dataset.
+    This function asserts that the provided dataset is one of the allowed values 
+    ("dreamviews", "flying", "sddb"). It then loads the corresponding JSON file 
+    containing GPT completions and processes the data to extract lucidity codes 
+    for each dream entry.
+    Args:
+        dataset (str): The name of the dataset to load. Must be one of 
+                       ["dreamviews", "flying", "sddb"].
+    Returns:
+        pd.Series: A pandas Series with dream IDs as the index and lucidity 
+                   status ("lucid" or "non-lucid") as the values.
+    """
+    
     assert dataset in ["dreamviews", "flying", "sddb"]
     responses = {}
     completions = load_json(deriv_dir / f"data-{dataset}_task-islucid_responses.json")
@@ -46,12 +62,33 @@ def load_gpt_lucidity_codes(dataset):
     return ser
 
 
-def remove_short_and_long_dreams(df):
+def remove_short_and_long_dreams(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Filters out rows in the DataFrame where the length of the 'dream_text' column
+    is less than 50 characters or greater than 5000 characters.
+    Parameters:
+    df (pandas.DataFrame): The DataFrame containing a 'dream_text' column.
+    Returns:
+    pandas.DataFrame: A DataFrame with rows filtered based on the length of 'dream_text'.
+    """
+    
     lengths = df["dream_text"].str.len()
     return df[lengths.ge(50) & lengths.le(5000)]
 
 
-def clean_dream_column(ser):
+def clean_dream_column(ser: pd.Series) -> pd.Series:
+    """
+    Cleans a pandas Series containing dream-related text data.
+    This function performs the following operations on the input Series:
+    1. Applies the `unidecode` function to convert any non-ASCII characters to their closest ASCII equivalents.
+    2. Replaces double quotes (") with single quotes (').
+    3. Strips leading and trailing whitespace from each string in the Series.
+    Args:
+        ser (pd.Series): A pandas Series containing text data to be cleaned.
+    Returns:
+        pd.Series: A pandas Series with the cleaned text data.
+    """
+    
     return (
         ser.apply(unidecode.unidecode, errors="ignore", replace_str=None)
         .str.replace('"', "'")
@@ -59,7 +96,23 @@ def clean_dream_column(ser):
     )
 
 
-def load_dreamviews():
+def load_dreamviews() -> pd.DataFrame:
+    """
+    Loads and processes the DreamViews dataset from a TSV file.
+    The function performs the following steps:
+    1. Reads the TSV file into a pandas DataFrame.
+    2. Filters the DataFrame to include only rows where the 'lucidity' column is either 'lucid' or 'nonlucid'.
+    3. Renames columns: 'post_id' to 'dream_id' and 'post_clean' to 'dream_text'.
+    4. Sets 'dream_id' as the index of the DataFrame.
+    5. Replaces 'nonlucid' with 'non-lucid' in the 'lucidity' column.
+    6. Drops rows where 'dream_text' is NaN.
+    7. Prefixes the 'dream_id' index with 'DV-'.
+    8. Cleans the 'dream_text' column using the `clean_dream_column` function.
+    9. Removes dreams that are too short or too long using the `remove_short_and_long_dreams` function.
+    Returns:
+        pandas.DataFrame: The processed DreamViews dataset.
+    """
+    
     import_path = source_dir / "dreamviews.tsv"
     df = pd.read_table(import_path)
     df = df[df["lucidity"].isin(["lucid", "nonlucid"])]
@@ -74,7 +127,21 @@ def load_dreamviews():
     return remove_short_and_long_dreams(df)
 
 
-def load_sddb():
+def load_sddb() -> pd.DataFrame:
+    """
+    Loads the SDDb.csv file, processes the data, and returns a cleaned DataFrame.
+    The function performs the following steps:
+    1. Reads the SDDb.csv file located in the source directory.
+    2. Selects specific columns: "answer_text", "dream_entry_title", "respondent", and "survey".
+    3. Renames the "answer_text" column to "dream_text".
+    4. Drops rows where "dream_text" is NaN.
+    5. Sets the DataFrame index to a formatted string "SDDB-{index}".
+    6. Cleans the "dream_text" column using the `clean_dream_column` function.
+    7. Removes rows with short or long dreams using the `remove_short_and_long_dreams` function.
+    Returns:
+        pd.DataFrame: A cleaned DataFrame with processed dream data.
+    """
+    
     import_path = source_dir / "SDDb.csv"
     df = (
         pd.read_csv(
@@ -91,10 +158,10 @@ def load_sddb():
 
 
 def load_sourcedata(
-    dreams_only,
-    name="Flying Dreams Database.xlsx",
-    index_col="dream_ID",
-    usecols=[
+    dreams_only: bool,
+    name: str = "Flying Dreams Database.xlsx",
+    index_col: str = "dream_ID",
+    usecols: list = [
         "dream_ID",
         "source",
         "participant_ID",
@@ -107,7 +174,19 @@ def load_sourcedata(
         "GPT_ID500",
     ],
     **kwargs,
-):
+) -> pd.DataFrame:
+    """
+    Load and preprocess dream data from an Excel file.
+    Parameters:
+    - dreams_only (bool): If True, filter the data to include only dream reports.
+    - name (str): The name of the Excel file to load. Default is "Flying Dreams Database.xlsx".
+    - index_col (str): The column to use as the index. Default is "dream_ID".
+    - usecols (list): List of columns to use from the Excel file. Default includes specific columns.
+    - **kwargs: Additional keyword arguments to pass to `pd.read_excel`.
+    Returns:
+    - pd.DataFrame: A DataFrame containing the preprocessed dream data.
+    """
+
     filepath = source_dir / name
     df = (
         pd.read_excel(filepath, index_col=index_col, usecols=usecols, **kwargs)[
@@ -221,7 +300,8 @@ def load_json(filepath: str) -> dict:
         return json.load(f)
 
 
-def save_json(obj: dict, filepath: str, mode: str = "wt", **kwargs):
+def save_json(obj: dict, filepath: str, mode: str = "wt", **kwargs) -> None:
+    """Save a dictionary as a JSON file."""
     kwargs = {"indent": 4, "sort_keys": False, "ensure_ascii": True} | kwargs
     with open(filepath, mode, encoding="utf-8") as f:
         json.dump(obj, f, **kwargs)
@@ -233,7 +313,8 @@ def load_txt(filepath: str) -> str:
         return f.read()
 
 
-def load_matplotlib_settings(interactive=False):
+def load_matplotlib_settings(interactive: bool = False) -> None:
+    """Load custom matplotlib settings."""
     plt.rcParams["interactive"] = interactive
     plt.rcParams["savefig.dpi"] = 300
     plt.rcParams["font.family"] = "sans-serif"

@@ -7,30 +7,30 @@ import seaborn as sns
 import utils
 
 
+# Load custom matplotlib settings
 utils.load_matplotlib_settings()
 
+# Define dataset and number of segments
 dataset = "flying"
 n_segments = 1
 
+# List of LIWC dictionaries to use
 liwc_dicts = [
     "22",
     "bigtwo",
     "vestibular",
 ]
 
-
+# Load and preprocess the flying dataset
 flying = utils.load_sourcedata(dreams_only=True).drop(columns="GPT_ID500")
 flying_lucid_ser = utils.load_gpt_lucidity_codes(dataset="flying")
 flying = flying.join(flying_lucid_ser, how="inner")
 
+# Load additional datasets
 dreamviews = utils.load_dreamviews()
 sddb = utils.load_sddb()
 
-# Load LIWC results.
-
-
-# export_name = f"data-{dataset}_liwc.png"
-# export_path = deriv_dir / export_name
+# Load LIWC results
 def load_liwc_file(dataset, dic, nsegs=n_segments):
     import_name = f"data-{dataset}_liwc-{dic}_nsegs-{nsegs}.csv"
     import_path = utils.deriv_dir / import_name
@@ -41,13 +41,16 @@ def load_liwc_file(dataset, dic, nsegs=n_segments):
         # .drop(columns="dream")
     )
 
-
+# Load LIWC data for the flying dataset using all specified dictionaries
 flying_liwc = pd.concat([load_liwc_file("flying", d) for d in liwc_dicts], axis=1)
+# Load LIWC data for the DreamViews dataset using all specified dictionaries
 dreamviews_liwc = pd.concat(
     [load_liwc_file("dreamviews", d) for d in liwc_dicts], axis=1
 )
+# Load LIWC data for the SDDb dataset using all specified dictionaries
 sddb_liwc = pd.concat([load_liwc_file("sddb", d) for d in liwc_dicts], axis=1)
 
+# List of vestibular-related categories
 vestibular_cats = [
     "ascend",
     "balance",
@@ -66,19 +69,23 @@ vestibular_cats = [
     "weightless",
     "whirl",
 ]
+
+# Calculate the sum of vestibular-related categories for each dataset
 flying_liwc["vestib"] = flying_liwc[vestibular_cats].sum(axis=1)
 dreamviews_liwc["vestib"] = dreamviews_liwc[vestibular_cats].sum(axis=1)
 sddb_liwc["vestib"] = sddb_liwc[vestibular_cats].sum(axis=1)
 
-
+# Join lucidity codes to the LIWC data
 flying_liwc = flying_liwc.join(flying["lucidity"], how="inner")
 dreamviews_liwc = dreamviews_liwc.join(dreamviews["lucidity"], how="inner")
 
+# Drop the "Segment" index if there is only one segment
 if n_segments == 1:
     flying_liwc = flying_liwc.droplevel("Segment")
     dreamviews_liwc = dreamviews_liwc.droplevel("Segment")
     sddb_liwc = sddb_liwc.droplevel("Segment")
 
+# Melt the dataframes for easier plotting
 fly_melt = flying_liwc.melt(
     id_vars="lucidity", var_name="category", value_name="frequency", ignore_index=False
 )
@@ -89,10 +96,12 @@ sddb_melt = sddb_liwc.melt(
     var_name="category", value_name="frequency", ignore_index=False
 )
 
+# Add a "dataset" column to each dataframe
 fly_melt["dataset"] = "Flying"
 dv_melt["dataset"] = "DreamViews"
 sddb_melt["dataset"] = "SDDb"
 
+# Combine the dataframes
 flying_and_dv = pd.concat([fly_melt, dv_melt], axis=0)
 flying_and_sddb = pd.concat([fly_melt.drop(columns="lucidity"), sddb_melt], axis=0)
 
@@ -112,11 +121,13 @@ flying_and_sddb = pd.concat([fly_melt.drop(columns="lucidity"), sddb_melt], axis
 # Including dreamviews...
 # sns.barplot(data=flying_and_dv[flying_and_dv["category"].isin(vestibular_cats)], x="category", hue="lucidity", y="frequency")
 
+# Define categorical plotting orders
 lucidity_order = ["non-lucid", "lucid"]
 dataset_order_dv = ["Flying", "DreamViews"]
 dataset_order_sddb = ["Flying", "SDDb"]
-
 category = "Agency"
+
+# Plot the frequency of category-related words in the Flying and DreamViews datasets
 fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
 sns.barplot(
     flying_and_dv.query(f"category=='{category}'"),
@@ -129,13 +140,17 @@ sns.barplot(
     hue_order=lucidity_order,
     ax=ax,
 )
+
+# Set plot labels
 ax.set_xlabel("Dataset")
 ax.set_ylabel(f"{category}-related word frequency".capitalize())
 export_path = utils.deriv_dir / f"liwc-{category}_dreamviews.png"
+
+# Save the plot
 plt.savefig(export_path)
 plt.close()
 
-
+# Repeat the same process for other categories (copy/pasted garbage)
 category = "insight"
 fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
 plot_df = flying_and_dv.query(f"category=='{category}'")
@@ -155,7 +170,6 @@ ax.set_ylabel(f"{category}-related word frequency".capitalize())
 export_path = utils.deriv_dir / f"liwc-{category}_dreamviews.png"
 plt.savefig(export_path)
 plt.close()
-
 
 category = "emo_pos"
 fig, ax = plt.subplots(figsize=(3, 3), constrained_layout=True)
@@ -219,7 +233,6 @@ plt.close()
 #     ax.set_xticklabels(["Flying\nnon-lucid", "Flying\nlucid"])
 #     ax.set_ylabel(f"{category} word frequency")
 #     ax.spines[["top", "right"]].set_visible(False)
-
 
 # def plot_bars(category):
 #     category = "emo_neg"

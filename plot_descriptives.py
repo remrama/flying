@@ -6,6 +6,7 @@ from matplotlib.lines import Line2D
 
 import utils
 
+# Load matplotlib settings.
 utils.load_matplotlib_settings()
 
 # Load data.
@@ -17,20 +18,22 @@ assert df[["source_id", "subject_id", "report_type", "dream_text"]].notna().all(
 # Visualize number of dreams vs comments for each source.
 ################################################################################
 
+# Count number of dreams and comments for each source.
 order = ["dream", "comment"]
 counts = df.groupby("source_id")["report_type"].value_counts(dropna=False).unstack(fill_value=0)
 counts = counts.reindex(counts.sum(axis=1).sort_values(ascending=False).index)
 counts = counts[order]
 
+# Save counts to CSV.
 counts2 = counts.rename_axis(columns=None)
 counts2.loc["total"] = counts2.sum()
 export_path = utils.deriv_dir / "data-flying_sample-type.csv"
 counts2.to_csv(export_path, index=True)
 
+# Plot counts.
 fig, ax = plt.subplots(figsize=(3, 3.5), constrained_layout=True)
 bar_kwargs = dict(width=0.8, linewidth=1, edgecolor="black")
 palette = utils.colors.copy()
-
 x = np.arange(len(counts))
 ybottom = np.zeros(x.size)
 for col in counts:
@@ -39,23 +42,21 @@ for col in counts:
     ax.bar(x, y, bottom=ybottom, color=c, **bar_kwargs)
     ybottom += y
 
+# Set plot labels and limits.
 ax.set_xticks(x)
 ax.set_xticklabels(counts.index.values, rotation=40, ha="right", fontsize=8)
-
 ax.set_xlabel("Data source")
 ax.set_ylabel("Number of reports")
-
 ax.set_ybound(upper=3200)
 ax.yaxis.set(major_locator=plt.MultipleLocator(500), minor_locator=plt.MultipleLocator(100))
-# ax.set_yscale("log")
 
+# Create legend.
 handles = [ 
     plt.matplotlib.patches.Patch(
         facecolor=palette[column], label=column, edgecolor="black", linewidth=0.5
     )
     for column in counts
 ]
-
 legend = ax.legend(
     handles=handles,
     loc="upper right",
@@ -67,10 +68,10 @@ legend = ax.legend(
     labelspacing=0.1,  # vertical space between the legend entries
     borderaxespad=0,
 )
-
 legend._legend_box.align = "left"
-# legend._legend_box.sep = 5 # brings title up farther on top of handles/labels
+# legend._legend_box.sep = 5  # brings title up farther on top of handles/labels
 
+# Save plot.
 export_path = utils.deriv_dir / "data-flying_sample-type.png"
 plt.savefig(export_path)
 plt.close()
@@ -78,9 +79,8 @@ plt.close()
 
 
 ################################################################################
-# Visualize lucid dream frequency
+# Visualize lucid dream frequency.
 ################################################################################
-
 
 # responses = {}
 # completions = utils.load_json(utils.deriv_dir / f"data-flying_task-islucid_responses.json")
@@ -91,24 +91,27 @@ plt.close()
 #     .rename("lucidity").rename_axis("dream_ID")
 #     .map({"True": "lucid", "False": "non-lucid"})
 # )
+
+# Load lucidity codes.
 ser = utils.load_gpt_lucidity_codes(dataset="flying")
 drms = df.join(ser, how="inner")
 
-
+# Count lucid and non-lucid dreams for each source.
 order = ["non-lucid", "lucid"]
 counts = drms.groupby("source_id")["lucidity"].value_counts(dropna=False).unstack(fill_value=0)
 counts = counts.reindex(counts.sum(axis=1).sort_values(ascending=False).index)
 counts = counts[order]
 
+# Save counts to CSV.
 counts2 = counts.rename_axis(columns=None)
 counts2.loc["total"] = counts2.sum()
 export_path = utils.deriv_dir / "data-flying_sample-lucidity.csv"
 counts2.to_csv(export_path, index=True)
 
+# Plot counts.
 fig, ax = plt.subplots(figsize=(3, 3.5), constrained_layout=True)
 bar_kwargs = dict(width=0.8, linewidth=1, edgecolor="black")
 palette = utils.colors.copy()
-
 x = np.arange(len(counts))
 ybottom = np.zeros(x.size)
 for col in counts:
@@ -117,23 +120,21 @@ for col in counts:
     ax.bar(x, y, bottom=ybottom, color=c, **bar_kwargs)
     ybottom += y
 
+# Set plot labels and limits.
 ax.set_xticks(x)
 ax.set_xticklabels(counts.index.values, rotation=40, ha="right", fontsize=8)
-
 ax.set_xlabel("Data source")
 ax.set_ylabel("Number of dreams")
-
 ax.set_ybound(upper=2200)
 ax.yaxis.set(major_locator=plt.MultipleLocator(500), minor_locator=plt.MultipleLocator(100))
-# ax.set_yscale("log")
 
+# Create legend.
 handles = [ 
     plt.matplotlib.patches.Patch(
         facecolor=palette[column], label=column, edgecolor="black", linewidth=0.5
     )
     for column in counts
 ]
-
 legend = ax.legend(
     handles=handles,
     loc="upper right",
@@ -145,37 +146,39 @@ legend = ax.legend(
     labelspacing=0.1,  # vertical space between the legend entries
     borderaxespad=0,
 )
-
 legend._legend_box.align = "left"
 # legend._legend_box.sep = 5 # brings title up farther on top of handles/labels
 
+# Save plot.
 export_path = utils.deriv_dir / "data-flying_sample-lucidity.png"
 plt.savefig(export_path)
 plt.close()
-
 
 
 ################################################################################
 # Visualize number of authors for DREAMS vs gender count for each source.
 ################################################################################
 
+# Reduce to dreams and drop duplicates to get unique authors.
 dreams = df.query("report_type=='dream'")
 dream_subjects = dreams.drop_duplicates("subject_id")
 
+# Count number of authors for each source.
 order = ["female", "male", "they", "unspecified"]
 counts = dream_subjects.groupby("source_id")["sex"].value_counts(dropna=False).unstack(fill_value=0)
 counts = counts.reindex(counts.sum(axis=1).sort_values(ascending=False).index)
 counts = counts[order]
 
+# Save counts to CSV.
 counts2 = counts.rename_axis(columns=None)
 counts2.loc["total"] = counts2.sum()
 export_path = utils.deriv_dir / "data-flying_sample-sex.csv"
 counts2.to_csv(export_path, index=True)
 
+# Plot counts.
 fig, ax = plt.subplots(figsize=(3, 3.5), constrained_layout=True)
 bar_kwargs = dict(width=0.8, linewidth=0, edgecolor="black")
 palette = utils.colors.copy()
-
 x = np.arange(len(counts))
 ybottom = np.zeros(x.size)
 for col in counts:
@@ -184,22 +187,21 @@ for col in counts:
     ax.bar(x, y, bottom=ybottom, color=c, **bar_kwargs)
     ybottom += y
 
+# Set plot labels and limits.
 ax.set_xticks(x)
 ax.set_xticklabels(counts.index.values, rotation=40, ha="right", fontsize=8)
-
 ax.set_xlabel("Data source")
 ax.set_ylabel("Number of participants")
-
 # ax.set_ybound(upper=3200)
 # ax.yaxis.set(major_locator=plt.MultipleLocator(500), minor_locator=plt.MultipleLocator(100))
 
+# Create legend.
 handles = [ 
     plt.matplotlib.patches.Patch(
         facecolor=palette[column], label=column, edgecolor="black", linewidth=0.5
     )
     for column in counts
 ]
-
 legend = ax.legend(
     handles=handles,
     loc="upper right",
@@ -211,10 +213,10 @@ legend = ax.legend(
     labelspacing=0.1,  # vertical space between the legend entries
     borderaxespad=0,
 )
-
 legend._legend_box.align = "left"
 # legend._legend_box.sep = 5 # brings title up farther on top of handles/labels
 
+# Save plot.
 export_path = utils.deriv_dir / "data-flying_sample-sex.png"
 plt.savefig(export_path)
 plt.close()
@@ -224,13 +226,7 @@ plt.close()
 # Visualize relationship between dream/author sample size for each source.
 ################################################################################
 
-counts = dreams.groupby("source_id")["subject_id"].agg(["nunique", "count"])
-
-counts2 = counts.rename_axis(columns=None)
-counts2.loc["total"] = counts2.sum()
-export_path = utils.deriv_dir / "data-flying_sample-authors.csv"
-counts2.to_csv(export_path, index=True)
-
+# Define markers for each source.
 markers = {
     "DreamBank": "o",
     "LD4all": "s",
@@ -239,24 +235,33 @@ markers = {
     "SDDb": "*",
 }
 
+# Count number of dreams and authors for each source.
+counts = dreams.groupby("source_id")["subject_id"].agg(["nunique", "count"])
+
+# Save counts to CSV.
+counts2 = counts.rename_axis(columns=None)
+counts2.loc["total"] = counts2.sum()
+export_path = utils.deriv_dir / "data-flying_sample-authors.csv"
+counts2.to_csv(export_path, index=True)
+
+# Plot counts.
 fig, ax = plt.subplots(figsize=(2.5, 2.5), constrained_layout=True)
 scatter_kwargs = dict(s=60, c=utils.colors["dream"], clip_on=False)
-
 for idx, row in counts.iterrows():
     m = markers[idx]
     ax.scatter(row["count"], y=row["nunique"], marker=m, **scatter_kwargs)
-
 ax.plot([0, 1], [0, 1], "--", lw=1, color="black", zorder=1, transform=ax.transAxes)
 
+# Set plot labels and limits.
 ax.set_xlabel("Number of dreams")
 ax.set_ylabel("Number of unique authors")
-
 ax.set_xlim(0, 3200)
 ax.set_ylim(0, 3200)
 ax.yaxis.set(major_locator=plt.MultipleLocator(1000), minor_locator=plt.MultipleLocator(200))
 ax.xaxis.set(major_locator=plt.MultipleLocator(1000), minor_locator=plt.MultipleLocator(200))
 ax.set_aspect(1)
 
+# Create legend.
 handles = [
     Line2D(
         [0], [0], marker=markers[x],
@@ -265,7 +270,6 @@ handles = [
     )
     for x in counts.index
 ]
-
 legend = ax.legend(
     handles=handles,
     loc="upper left",
@@ -277,37 +281,37 @@ legend = ax.legend(
     labelspacing=0.1,  # vertical space between the legend entries
     borderaxespad=0,
 )
-
 legend._legend_box.align = "left"
 # legend._legend_box.sep = 5 # brings title up farther on top of handles/labels
 
+# Save plot.
 export_path = utils.deriv_dir / "data-flying_sample-authors.png"
 plt.savefig(export_path)
 plt.close()
-
 
 
 ################################################################################
 # Histogram zoomed in on LD4all dreams to view dreams per author
 ################################################################################
 
+# Count number of dreams per author for LD4all.
 counts = dreams.query("source_id=='LD4all'")["subject_id"].value_counts()
 
+# Plot histogram.
 fig, ax = plt.subplots(figsize=(3, 2), constrained_layout=True)
 hist_kwargs = dict(bins=30, color=utils.colors["dream"], edgecolor="black", linewidth=1)
-
 ax.hist(counts.to_numpy(), **hist_kwargs)
 
+# Set plot labels and limits.
 ax.spines[["top", "right"]].set_visible(False)
 ax.set_xlabel("Number of dreams")
 ax.set_ylabel("Number of dreamers")
-
 ax.set_yscale("log")
 ax.set_ybound(upper=1000)
 ax.xaxis.set(major_locator=plt.MultipleLocator(100), minor_locator=plt.MultipleLocator(20))
-
 ax.text(1, 1, "LD4all sample", ha="right", va="top", fontsize=10, transform=ax.transAxes)
 
+# Save plot.
 export_path = utils.deriv_dir / "data-flying_sample-ld4all.png"
 plt.savefig(export_path)
 plt.close()
