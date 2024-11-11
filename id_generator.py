@@ -1,3 +1,5 @@
+"""Generate IDs for archive entries."""
+
 import calendar
 import random
 import uuid

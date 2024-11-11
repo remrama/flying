@@ -1,24 +1,21 @@
 # flying
 
-A study of flying dreams.
+A study of the phenomenology of flying dreams.
 
 
-## ChatGPT coding
+## Ask ChatGPT to code and annotate dreams
 
 ```shell
-# Is a post a dream?
-python gpt_request.py --dataset flying --task isdream       #> data-flying_task-isdream_responses.json
-
+# Is it a dream?
+python run_gpt_task.py --task isdream   # --> task-isdream_responses.json
 # Is a dream lucid?
-python gpt_request.py --dataset dreamviews --task islucid   #> data-dreamviews_task-islucid_responses.json
-python gpt_request.py --dataset flying --task islucid       #> data-flying_task-islucid_responses.json
-python gpt_request.py --dataset sddb --task islucid         #> data-sddb_task-islucid_responses.json
-
+python run_gpt_task.py --task islucid   # --> task-islucid_responses.json
 # Identify themes in a dream
-python gpt_request.py --dataset flying --task thematicT     #> data-flying_task-thematicT_responses.json
-
+python run_gpt_task.py --task themesT   # --> task-themesT_responses.json
+python run_gpt_task.py --task themesD   # --> task-themesD_responses.json
+python run_gpt_task.py --task themesM   # --> task-themesM_responses.json
 # Annotate non-dream, lucid dream, and flying dream sections
-python gpt_request.py --dataset flying --task annotate      #> data-flying_task-annotate_responses.json
+python run_gpt_task.py --task annotate  # --> task-annotate_responses.json
 ```
 
 ## Visualizations

@@ -73,7 +73,8 @@ for dream_id, completion in completions.items():
             masks = {k: np.interp(norm_index, old_index, v) for k, v in masks.items()}
             # masks = {k: interp1d(old_index, v, kind="nearest")(norm_index) for k, v in masks.items()}
             results[dream_id] = masks
-    except:
+    except Exception as e:
+        print(f"ERROR: {e}")
         badcounts += 1
 
 print(f"THIS MANY LOADING ERRORS: {badcounts}")
@@ -246,8 +247,8 @@ lines = ax.plot(
     linewidth=2,
     transform=ax.get_yaxis_transform(),
 )
-for l in lines:
-    l.set_dash_capstyle("round")
+for line in lines:
+    line.set_dash_capstyle("round")
 # l = mlines.Line2D([stars_x, stars_x], [0, 1], color=stars_color)
 # l.set_dash_capstyle("round")
 # ax.add_lines(l)

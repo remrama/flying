@@ -1,9 +1,15 @@
 name: flying
-
+channels:
+  - defaults
+  - conda-forge
 dependencies:
   - ipython
+  - tqdm
   - numpy
   - pandas
+  - matplotlib
+  - seaborn
+  - pingouin
   - scikit-learn
   - pip
   - pip:
